@@ -1,0 +1,15 @@
+d 'PATHWIMP': module to estimate path-specific effects using an imputation-based weighting estimator
+d
+d pathimp estimates path-specific effects using an imputation-based weighting estimator.
+d      
+d Requires: Stata version 15
+d
+d Distribution-Date: 20240827
+d
+d Author: Geoff Wodtke, University of Chicago
+d Support: email wodtke@@uchicago.edu
+d
+f pathwimp.ado
+f pathwimpbs.ado
+f mpathwimp.ado
+f pathwimp.sthlp
