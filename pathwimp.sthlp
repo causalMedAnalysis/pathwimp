@@ -110,7 +110,7 @@ of predicted values.
 by computing the weighted mean of these predictions -- with the weights computed in step 3 -- among sample
 members for whom dvar = dstar.
 
-{pstd}4. Calculate estimates for the path-specific effects using the imputed outcomes from steps 2 and 4.
+{pstd}5. Calculate estimates for the path-specific effects using the imputed outcomes from steps 2 and 4.
 
 {pstd}If there are K causally ordered mediators, {cmd:pathwimp} provides estimates for the total effect and then for K+1 path-specific effects:
 the direct effect of the exposure on the outcome that does not operate through any of the mediators, and then a separate path-specific effect 
