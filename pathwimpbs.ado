@@ -119,21 +119,21 @@ program define pathwimpbs, rclass
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
 			sampwts(`sampwts') `censor'
 		
-		scalar mnde_M1M2M3=r(nde)
+		qui scalar mnde_M1M2M3=r(nde)
 		
-		qui mpathwimp `yvar' `mvar1' `mvar2' if `touse', ///
+		mpathwimp `yvar' `mvar1' `mvar2' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
 			sampwts(`sampwts') `censor'
 		
-		scalar mnde_M1M2=r(nde)
+		qui scalar mnde_M1M2=r(nde)
 		
-		qui mpathwimp `yvar' `mvar1' if `touse', ///
+		mpathwimp `yvar' `mvar1' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
 			sampwts(`sampwts') `censor' `detail'
 		
-		scalar mnde_M1=r(nde)
+		qui scalar mnde_M1=r(nde)
 		
 		return scalar pse_DY=mnde_M1M2M3M4
 		return scalar pse_DM4Y=mnde_M1M2M3-mnde_M1M2M3M4
