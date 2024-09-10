@@ -53,14 +53,14 @@ program define pathwimpbs, rclass
 
 	if (`num_mvars' == 2) {
 	
-		mpathwimp `yvar' `mvar1' `mvar2' [`weight' `exp'] if `touse', ///
+		mpathwimp `yvar' `mvar1' `mvar2' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
 			sampwts(`sampwts') `censor'
 	
 		qui scalar mnde_M1M2=r(nde)
 
-		mpathwimp `yvar' `mvar1' [`weight' `exp'] if `touse', ///
+		mpathwimp `yvar' `mvar1' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
 			sampwts(`sampwts') `censor' `detail'

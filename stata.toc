@@ -13,7 +13,7 @@ package ^pathwimp^ from https://github.com/causalMedAnalysis/pathwimp
 
 ^DESCRIPTION/AUTHOR(S)^
       
-pathimp estimates path-specific effects using an imputation-based weighting estimator.
+pathwimp estimates path-specific effects using an imputation-based weighting estimator.
       
 Requires: Stata version 15
       
