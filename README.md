@@ -1,4 +1,4 @@
-# `pathwimp`: Analysis of Path-Specific Effects Using an Imputation-Based Weighting Estimator
+# `pathwimp`: A Stata Module for Analysis of Path-Specific Effects Using an Imputation-Based Weighting Estimator
 
 `pathwimp` estimates path-specific effects using an imputation-based weighting estimator.
 
@@ -22,18 +22,13 @@ pathimp depvar [if] [in], dvar(varname) d(real) dstar(real) yreg(string) [option
 - `nointeraction`: If specified, no treatment-mediator interaction is included in the appropriate outcome model.
 - `cxd`: Includes two-way interactions between treatment and baseline covariates in the outcome models.
 - `cxm`: Includes two-way interactions between mediators and baseline covariates in the appropriate outcome model.
-- `censor`: Specifies that the inverse probability weights are censored at their 1st and 99th percentiles.
 - `sampwts(varname)`: Specifies a variable containing sampling weights to include in the analysis.
-- `reps(integer)`: Number of bootstrap replications, default is 200.
-- `strata(varname)`: Variable that identifies resampling strata.
-- `cluster(varname)`: Variable that identifies resampling clusters.
-- `level(cilevel)`: Confidence level for constructing bootstrap confidence intervals, default is 95%.
-- `seed(passthru)`: Seed for bootstrap resampling.
-- `detail`: Prints the fitted models for the outcome.
+- `censor(numlist)`: Censors the inverse probability weights at the percentiles provided in `numlist`.
+- `detail`: Prints the fitted models for the outcome and exposure, and stores the inverse probability weights in a vew variable.
 
 ## Description
 
-`pathwimp` estimates path-specific effects using an imputation-based weighting estimator, addressing the explanatory role of multiple, causally ordered mediators.
+`pathwimp` estimates path-specific effects using an imputation-based weighting estimator, addressing the explanatory role of multiple, causally ordered mediators. It computes inferential statistics using the nonparametric bootstrap. 
 
 With `K` causally ordered mediators, the implementation proceeds as follows:
 
@@ -66,6 +61,8 @@ members for whom dvar = dstar.
 - Separate path-specific effects operating through each of the `K` mediators, net of the mediators that precede them in causal order.
 
 If only a single mediator is specified, `pathwimp` reverts to estimates of conventional natural direct and indirect effects through a univariate mediator.
+
+`pathwimp` allows sampling weights via the `sampwts` option, but it does not internally rescale them for use with the bootstrap. If using weights from a complex sample design that require rescaling to produce valid boostrap estimates, the user must be sure to appropriately specify the `strata`, `cluster`, and `size` options from the `bootstrap` command so that Nc-1 clusters are sampled within from each stratum, where Nc denotes the number of clusters per stratum. Failure to properly adjust the bootstrap sampling to account for a complex sample design that requires weighting could lead to invalid inferential statistics.
 
 ## Examples
 
