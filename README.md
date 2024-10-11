@@ -25,6 +25,7 @@ pathimp depvar [if] [in], dvar(varname) d(real) dstar(real) yreg(string) [option
 - `sampwts(varname)`: Specifies a variable containing sampling weights to include in the analysis.
 - `censor(numlist)`: Censors the inverse probability weights at the percentiles provided in `numlist`.
 - `detail`: Prints the fitted models for the outcome and exposure, and stores the inverse probability weights in a vew variable.
+- `bootstrap_options`: All `bootstrap` options are available.
 
 ## Description
 
