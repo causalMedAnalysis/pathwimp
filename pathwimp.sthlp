@@ -22,14 +22,10 @@
 {opt nointer:action} 
 {opt cxd} 
 {opt cxm} 
-{opt censor}
 {opt sampwts(varname)} 
-{opt reps(integer)} 
-{opt strata(varname)} 
-{opt cluster(varname)} 
-{opt level(cilevel)} 
-{opt seed(passthru)} 
+{opt censor(numlist)}
 {opt detail}
+[{it:{help bootstrap##options:bootstrap_options}}]
 
 {phang}{opt depvar} - this specifies the outcome variable.
 
@@ -43,7 +39,7 @@ and ending with the last. Up to 5 causally ordered mediators are permitted.
 {phang}{opt dstar(real)} - this specifies the alternative level of treatment. Together, (d - dstar) defines
 the treatment contrast of interest.
 
-{phang}{opt yreg}{cmd:(}{it:string}{cmd:)}} - this specifies the form of the models to be estimated for the outcome. 
+{phang}{opt yreg}{cmd:(}{it:string}{cmd:)} - this specifies the form of the models to be estimated for the outcome. 
 Options are {opt regress} and {opt logit}.
 
 {title:Options}
@@ -60,30 +56,20 @@ included in the outcome models.
 {phang}{opt cxm} - this option specifies that all two-way interactions between the mediators and baseline covariates are
 included in the outcome models.
 
-{phang}{opt censor} - this option specifies that the inverse probability weights are censored at the 1st and 99th percentiles.
-
 {phang}{opt sampwts(varname)} - this option specifies a variable containing sampling weights to include in the analysis.
 
-{phang}{opt reps(integer)} - this option specifies the number of replications for bootstrap resampling (the default is 200).
-
-{phang}{opt strata(varname)} - this option specifies a variable that identifies resampling strata. If this option is specified, 
-then bootstrap samples are taken independently within each stratum.
-
-{phang}{opt cluster(varname)} - this option specifies a variable that identifies resampling clusters. If this option is specified,
-then the sample drawn during each replication is a bootstrap sample of clusters.
-
-{phang}{opt level(cilevel)} - this option specifies the confidence level for constructing bootstrap confidence intervals. If this 
-option is omitted, then the default level of 95% is used.
-
-{phang}{opt seed(passthru)} - this option specifies the seed for bootstrap resampling. If this option is omitted, then a random 
-seed is used and the results cannot be replicated. {p_end}
+{phang}{opt censor(numlist)} - this option specifies that the inverse probability weights are censored at the percentiles supplied in {numlist}. For example,
+censor(1 99) censors the weights at their 1st and 99th percentiles.
 
 {phang}{opt detail} - this option prints the fitted models for the exposure and outcome used to construct effect estimates, and it
-saves the inverse probability weights in a new variable. {p_end}
+saves the inverse probability weights in a new variable.
+
+{phang}{it:{help bootstrap##options:bootstrap_options}} - all {help bootstrap} options are available. {p_end}
 
 {title:Description}
 
-{pstd}{cmd:pathwimp} estimates path-specific effects using an imputation-based weighting estimator. 
+{pstd}{cmd:pathwimp} estimates path-specific effects using an imputation-based weighting estimator, and it computes inferential 
+statistics using the nonparametric bootstrap. 
 
 {pstd}With K causally ordered mediators, this approach is implemented as follows: 
 
@@ -115,7 +101,12 @@ members for whom dvar = dstar.
 {pstd}If there are K causally ordered mediators, {cmd:pathwimp} provides estimates for the total effect and then for K+1 path-specific effects:
 the direct effect of the exposure on the outcome that does not operate through any of the mediators, and then a separate path-specific effect 
 operating through each of the K mediators, net of the mediators that precede it in causal order. If only a single mediator is specified, 
-{cmd:pathwimp} reverts to estimates of conventional natural direct and indirect effects through a univariate mediator. {p_end}
+{cmd:pathwimp} reverts to estimates of conventional natural direct and indirect effects through a univariate mediator.
+
+{pstd}If using {opt sampwts} from a complex sample design that require rescaling to produce valid boostrap estimates, be sure to appropriately 
+specify the strata(), cluster(), and size() options from the {help bootstrap} command so that Nc-1 clusters are sampled from each stratum 
+with replacement, where Nc denotes the number of clusters per stratum. Failing to properly adjust the bootstrap procedure to account
+for a complex sample design and its associated sampling weights could lead to invalid inferential statistics. {p_end}
 
 {title:Examples}
 
@@ -124,19 +115,19 @@ operating through each of the K mediators, net of the mediators that precede it 
 
 {pstd} percentile bootstrap CIs with default settings and K=2 causally ordered mediators: {p_end}
  
-{phang2}{cmd:. pathwimp std_cesd_age40 ever_unemp_age3539 log_faminc_adj_age3539, dvar(att22) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) d(1) dstar(0) yreg(regress) reps(1000)} {p_end}
+{phang2}{cmd:. pathwimp std_cesd_age40 ever_unemp_age3539 log_faminc_adj_age3539, dvar(att22) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) d(1) dstar(0) yreg(regress)} {p_end}
 
-{pstd} percentile bootstrap CIs with default settings and K=3 causally ordered mediators: {p_end}
+{pstd} percentile bootstrap CIs with 1000 replications and K=3 causally ordered mediators: {p_end}
  
 {phang2}{cmd:. pathwimp std_cesd_age40 cesd_1992 ever_unemp_age3539 log_faminc_adj_age3539, dvar(att22) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) d(1) dstar(0) yreg(regress) reps(1000)} {p_end}
 
 {pstd} percentile bootstrap CIs with default settings, K=2 causally ordered mediators, and all two-way interactions: {p_end}
  
-{phang2}{cmd:. pathwimp std_cesd_age40 ever_unemp_age3539 log_faminc_adj_age3539, dvar(att22) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) d(1) dstar(0) yreg(regress) cxd cxm reps(1000)} {p_end}
+{phang2}{cmd:. pathwimp std_cesd_age40 ever_unemp_age3539 log_faminc_adj_age3539, dvar(att22) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) d(1) dstar(0) yreg(regress) cxd cxm} {p_end}
 
-{pstd} percentile bootstrap CIs with default settings, K=2 causally ordered mediators, and no interactions, printing models: {p_end}
+{pstd} percentile bootstrap CIs with default settings, K=2 causally ordered mediators, and no interactions, printing detailed output: {p_end}
  
-{phang2}{cmd:. pathwimp std_cesd_age40 ever_unemp_age3539 log_faminc_adj_age3539, dvar(att22) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) d(1) dstar(0) yreg(regress) nointer reps(1000) detail} {p_end}
+{phang2}{cmd:. pathwimp std_cesd_age40 ever_unemp_age3539 log_faminc_adj_age3539, dvar(att22) cvars(female black hispan paredu parprof parinc_prank famsize afqt3) d(1) dstar(0) yreg(regress) nointer detail} {p_end}
 
 {title:Saved results}
 

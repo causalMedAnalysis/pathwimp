@@ -18,7 +18,7 @@ program define mpathwimp, rclass
 		[cxd] ///
 		[cxm] ///
 		[sampwts(varname numeric)] ///
-		[censor] ///
+		[censor(numlist min=2 max=2)] ///
 		[detail]
 	
 	qui {
@@ -26,7 +26,7 @@ program define mpathwimp, rclass
 		count if `touse'
 		if r(N) == 0 error 2000
 		local N = r(N)
-		}
+	}
 			
 	gettoken yvar mvars : varlist
 
@@ -35,26 +35,26 @@ program define mpathwimp, rclass
 	if !`nyreg' {
 		display as error "Error: yreg must be chosen from: `yregtypes'."
 		error 198		
-		}
+	}
 	else {
 		local mreg : word `nyreg' of `yregtypes'
-		}
+	}
 		
 	if ("`nointeraction'" == "") {
 		foreach m in `mvars' {
 			tempvar i_`m'
 			qui gen `i_`m'' = `dvar' * `m' if `touse'
 			local inter `inter' `i_`m''
-			}
 		}
+	}
 
 	if ("`cxd'"!="") {	
 		foreach c in `cvars' {
 			tempvar dX`c'
 			qui gen `dX`c'' = `dvar' * `c' if `touse'
 			local cxd_vars `cxd_vars' `dX`c''
-			}
 		}
+	}
 
 	local i = 1
 	if ("`cxm'"!="") {	
@@ -64,9 +64,9 @@ program define mpathwimp, rclass
 				qui gen `mXc`i'' = `m' * `c' if `touse'
 				local cxm_vars `cxm_vars' `mXc`i''
 				local ++i
-				}
 			}
 		}
+	}
 
 	tempvar wts
 	qui gen `wts' = 1 if `touse'
@@ -75,7 +75,7 @@ program define mpathwimp, rclass
 		qui replace `wts' = `wts' * `sampwts' if `touse'
 		qui sum `wts' if `touse'
 		qui replace `wts' = `wts' / r(mean) if `touse'
-		}
+	}
 		
 	tempvar dvar_orig
 	qui gen `dvar_orig' = `dvar' if `touse'
@@ -95,10 +95,10 @@ program define mpathwimp, rclass
 	qui gen `sw1' = `phat_D`dstar'' / `phat_D`dstar'_C' if `dvar'==`dstar' & `touse'
 
 	if ("`censor'"!="") {
-		qui centile `sw1' if `sw1'!=. & `touse', c(1 99) 
+		qui centile `sw1' if `sw1'!=. & `touse', c(`censor') 
 		qui replace `sw1'=r(c_1) if `sw1'<r(c_1) & `sw1'!=. & `touse'
 		qui replace `sw1'=r(c_2) if `sw1'>r(c_2) & `sw1'!=. & `touse'
-		}
+	}
 	
 	qui replace `sw1'=`sw1' * `wts' if `touse'
 	
@@ -114,8 +114,8 @@ program define mpathwimp, rclass
 		if ("`cxd'"!="") {	
 			foreach c in `cvars' {
 				qui replace `dX`c'' = `dvar' * `c' if `touse'
-				}
-			}	
+			}
+		}	
 		
 		qui predict `yhat`d'M`d'' if `touse', xb
 		
@@ -124,8 +124,8 @@ program define mpathwimp, rclass
 		if ("`cxd'"!="") {	
 			foreach c in `cvars' {
 				qui replace `dX`c'' = `dvar' * `c' if `touse'
-				}
-			}	
+			}
+		}	
 			
 		qui predict `yhat`dstar'M`dstar'' if `touse', xb
 		
@@ -134,8 +134,8 @@ program define mpathwimp, rclass
 		if ("`cxd'"!="") {	
 			foreach c in `cvars' {
 				qui replace `dX`c'' = `dvar' * `c' if `touse'
-				}
-			}	
+			}
+		}	
 		
 		di ""
 		di "Model for `yvar' given {cvars `dvar' `mvars'}:"
@@ -148,14 +148,14 @@ program define mpathwimp, rclass
 		if ("`cxd'"!="") {	
 			foreach c in `cvars' {
 				qui replace `dX`c'' = `dvar' * `c' if `touse'
-				}
-			}	
+			}
+		}	
 			
 		if ("`nointeraction'" == "") {
 			foreach m in `mvars' {
 				qui replace `i_`m'' = `dvar' * `m' if `touse'
-				}
 			}
+		}
 		
 		qui predict `yhatC`d'M' if `touse', xb
 		
@@ -170,10 +170,10 @@ program define mpathwimp, rclass
 		if ("`nointeraction'" == "") {
 			foreach m in `mvars' {
 				qui replace `i_`m'' = `dvar' * `m' if `touse'
-				}
 			}
-
 		}
+
+	}
 
 	if ("`yreg'"=="logit") {
 	
@@ -186,8 +186,8 @@ program define mpathwimp, rclass
 		if ("`cxd'"!="") {	
 			foreach c in `cvars' {
 				qui replace `dX`c'' = `dvar' * `c' if `touse'
-				}
-			}	
+			}
+		}	
 		
 		qui predict `yhat`d'M`d'' if `touse'
 		
@@ -196,8 +196,8 @@ program define mpathwimp, rclass
 		if ("`cxd'"!="") {	
 			foreach c in `cvars' {
 				qui replace `dX`c'' = `dvar' * `c' if `touse'
-				}
-			}	
+			}
+		}	
 			
 		qui predict `yhat`dstar'M`dstar'' if `touse'
 		
@@ -206,8 +206,8 @@ program define mpathwimp, rclass
 		if ("`cxd'"!="") {	
 			foreach c in `cvars' {
 				qui replace `dX`c'' = `dvar' * `c' if `touse'
-				}
-			}	
+			}
+		}	
 		
 		di ""
 		di "Model for `yvar' given {cvars `dvar' `mvars'}:"
@@ -220,14 +220,14 @@ program define mpathwimp, rclass
 		if ("`cxd'"!="") {	
 			foreach c in `cvars' {
 				qui replace `dX`c'' = `dvar' * `c' if `touse'
-				}
-			}	
+			}
+		}	
 			
 		if ("`nointeraction'" == "") {
 			foreach m in `mvars' {
 				qui replace `i_`m'' = `dvar' * `m' if `touse'
-				}
 			}
+		}
 			
 		qui predict `yhatC`d'M' if `touse'
 		
@@ -236,16 +236,16 @@ program define mpathwimp, rclass
 		if ("`cxd'"!="") {	
 			foreach c in `cvars' {
 				qui replace `dX`c'' = `dvar' * `c' if `touse'
-				}
-			}	
+			}
+		}	
 			
 		if ("`nointeraction'" == "") {
 			foreach m in `mvars' {
 				qui replace `i_`m'' = `dvar' * `m' if `touse'
-				}
 			}
-			
 		}
+			
+	}
 	
 	qui reg `yhatC`d'M' [pw=`sw1'] if `dvar'==`dstar' & `touse'
 	scalar YdMdstar = _b[_cons]
@@ -269,10 +269,10 @@ program define mpathwimp, rclass
 				display as error "with the following name: `ipw_var_names', "
 				display as error "but this variable has already been defined.{p_end}"
 				error 110
-				}
 			}
+		}
 		
 		qui gen sw1_r001 = `sw1'
-		}
+	}
 	
 end mpathwimp

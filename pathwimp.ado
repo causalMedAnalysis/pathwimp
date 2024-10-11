@@ -14,19 +14,13 @@ program define pathwimp, eclass
 		d(real) ///
 		dstar(real) ///
 		yreg(string) ///
-		[cvars(varlist numeric)] ///
-		[NOINTERaction] ///
-		[cxd] ///
-		[cxm] ///
-		[sampwts(varname numeric)]  ///
-		[censor] ///
-		[reps(integer 200)] ///
-		[strata(varname numeric)] ///
-		[cluster(varname numeric)] ///
-		[level(cilevel)] ///
-		[seed(passthru)] ///
-		[saving(string)] ///
-		[detail]
+		[cvars(varlist numeric) ///
+		NOINTERaction ///
+		cxd ///
+		cxm ///
+		sampwts(varname numeric)  ///
+		censor(numlist min=2 max=2) ///
+		detail * ]
 		
 	qui {
 		marksample touse
@@ -73,8 +67,28 @@ program define pathwimp, eclass
 	if "`levels'" != "0 1" & "`levels'" != "1 0" {
 		display as error "The variable `dvar' is not binary and coded 0/1"
 		error 198
+	}
+
+	if ("`censor'" != "") {
+		local censor1: word 1 of `censor'
+		local censor2: word 2 of `censor'
+
+		if (`censor1' >= `censor2') {
+			di as error "The first number in the censor() option must be less than the second."
+			error 198
 		}
-		
+
+		if (`censor1' < 1 | `censor1' > 49) {
+			di as error "The first number in the censor() option must be between 1 and 49."
+			error 198
+		}
+
+		if (`censor2' < 51 | `censor2' > 99) {
+			di as error "The second number in the censor() option must be between 51 and 99."
+			error 198
+		}
+	}
+	
 	/***PRINT MODELS***/
 	if ("`detail'" != "") {
 	
@@ -111,178 +125,84 @@ program define pathwimp, eclass
 		pathwimpbs `yvar' `mvars' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor' `detail'
+			sampwts(`sampwts') censor(`censor') `detail'
 	}
 		
 	/***COMPUTE POINT AND INTERVAL ESTIMATES***/
 	if (`num_mvars' == 1) {
 	
-		if ("`saving'" != "") {
-			bootstrap ///
-				ATE=r(ate) ///
-				NDE=r(nde) ///
-				NIE=r(nie), ///
-					reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-					saving(`saving', replace) ///
-					noheader notable: ///
-						pathwimpbs `yvar' `mvars' if `touse', ///
-							dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
-							d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-							sampwts(`sampwts') `censor'
-		}
-	
-		if ("`saving'" == "") {
-			bootstrap ///
-				ATE=r(ate) ///
-				NDE=r(nde) ///
-				NIE=r(nie), ///
-					reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-					noheader notable: ///
-						pathwimpbs `yvar' `mvars' if `touse', ///
-							dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
-							d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-							sampwts(`sampwts') `censor'
-		}
+		bootstrap ///
+			ATE=r(ate) ///
+			NDE=r(nde) ///
+			NIE=r(nie), ///
+				`options' noheader notable: ///
+					pathwimpbs `yvar' `mvars' if `touse', ///
+						dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
+						d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
+						sampwts(`sampwts') censor(`censor')
 	}
-		
+	
+
 	if (`num_mvars' == 2) {
 
-		if ("`saving'" != "") {
-			bootstrap ///
-				ATE=r(ate) ///
-				PSE_DY=r(pse_DY) ///
-				PSE_DM2Y=r(pse_DM2Y) ///
-				PSE_DM1Y=r(pse_DM1Y), ///
-					reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-					saving(`saving', replace) ///
-					noheader notable: ///
-						pathwimpbs `yvar' `mvars' if `touse', ///
-							dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
-							d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-							sampwts(`sampwts') `censor'
-		}
-	
-		if ("`saving'" == "") {
-			bootstrap ///
-				ATE=r(ate) ///
-				PSE_DY=r(pse_DY) ///
-				PSE_DM2Y=r(pse_DM2Y) ///
-				PSE_DM1Y=r(pse_DM1Y), ///
-					reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-					noheader notable: ///
-						pathwimpbs `yvar' `mvars' if `touse', ///
-							dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
-							d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-							sampwts(`sampwts') `censor'
-		}
+		bootstrap ///
+			ATE=r(ate) ///
+			PSE_DY=r(pse_DY) ///
+			PSE_DM2Y=r(pse_DM2Y) ///
+			PSE_DM1Y=r(pse_DM1Y), ///
+				`options' noheader notable: ///
+					pathwimpbs `yvar' `mvars' if `touse', ///
+						dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
+						d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
+						sampwts(`sampwts') censor(`censor')
 	}
-
+	
 	if (`num_mvars' == 3) {
 
-		if ("`saving'" != "") {
-			bootstrap ///
-				ATE=r(ate) ///
-				PSE_DY=r(pse_DY) ///
-				PSE_DM3Y=r(pse_DM3Y) ///				
-				PSE_DM2Y=r(pse_DM2Y) ///
-				PSE_DM1Y=r(pse_DM1Y), ///
-					reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-					saving(`saving', replace) ///
-					noheader notable: ///
-						pathwimpbs `yvar' `mvars' if `touse', ///
-							dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
-							d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-							sampwts(`sampwts') `censor'
-		}
-	
-		if ("`saving'" == "") {
-			bootstrap ///
-				ATE=r(ate) ///
-				PSE_DY=r(pse_DY) ///
-				PSE_DM3Y=r(pse_DM3Y) ///				
-				PSE_DM2Y=r(pse_DM2Y) ///
-				PSE_DM1Y=r(pse_DM1Y), ///
-					reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-					noheader notable: ///
-						pathwimpbs `yvar' `mvars' if `touse', ///
-							dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
-							d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-							sampwts(`sampwts') `censor'
-		}
+		bootstrap ///
+			ATE=r(ate) ///
+			PSE_DY=r(pse_DY) ///
+			PSE_DM3Y=r(pse_DM3Y) ///				
+			PSE_DM2Y=r(pse_DM2Y) ///
+			PSE_DM1Y=r(pse_DM1Y), ///
+				`options' noheader notable: ///
+					pathwimpbs `yvar' `mvars' if `touse', ///
+						dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
+						d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
+						sampwts(`sampwts') censor(`censor')
 	}
-
+	
 	if (`num_mvars' == 4) {
 
-		if ("`saving'" != "") {
-			bootstrap ///
-				ATE=r(ate) ///
-				PSE_DY=r(pse_DY) ///
-				PSE_DM4Y=r(pse_DM4Y) ///				
-				PSE_DM3Y=r(pse_DM3Y) ///
-				PSE_DM2Y=r(pse_DM2Y) ///
-				PSE_DM1Y=r(pse_DM1Y), ///
-					reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-					saving(`saving', replace) ///
-					noheader notable: ///
-						pathwimpbs `yvar' `mvars' if `touse', ///
-							dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
-							d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-							sampwts(`sampwts') `censor'
-		}
-	
-		if ("`saving'" == "") {
-			bootstrap ///
-				ATE=r(ate) ///
-				PSE_DY=r(pse_DY) ///
-				PSE_DM4Y=r(pse_DM4Y) ///								
-				PSE_DM3Y=r(pse_DM3Y) ///				
-				PSE_DM2Y=r(pse_DM2Y) ///
-				PSE_DM1Y=r(pse_DM1Y), ///
-					reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-					noheader notable: ///
-						pathwimpbs `yvar' `mvars' if `touse', ///
-							dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
-							d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-							sampwts(`sampwts') `censor'
-		}
+		bootstrap ///
+			ATE=r(ate) ///
+			PSE_DY=r(pse_DY) ///
+			PSE_DM4Y=r(pse_DM4Y) ///				
+			PSE_DM3Y=r(pse_DM3Y) ///
+			PSE_DM2Y=r(pse_DM2Y) ///
+			PSE_DM1Y=r(pse_DM1Y), ///
+				`options' noheader notable: ///
+					pathwimpbs `yvar' `mvars' if `touse', ///
+						dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
+						d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
+						sampwts(`sampwts') censor(`censor')
 	}
-
+	
 	if (`num_mvars' == 5) {
 
-		if ("`saving'" != "") {
-			bootstrap ///
-				ATE=r(ate) ///
-				PSE_DY=r(pse_DY) ///
-				PSE_DM5Y=r(pse_DM5Y) ///				
-				PSE_DM4Y=r(pse_DM4Y) ///				
-				PSE_DM3Y=r(pse_DM3Y) ///
-				PSE_DM2Y=r(pse_DM2Y) ///
-				PSE_DM1Y=r(pse_DM1Y), ///
-					reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-					saving(`saving', replace) ///
-					noheader notable: ///
-						pathwimpbs `yvar' `mvars' if `touse', ///
-							dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
-							d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-							sampwts(`sampwts') `censor'
-		}
-	
-		if ("`saving'" == "") {
-			bootstrap ///
-				ATE=r(ate) ///
-				PSE_DY=r(pse_DY) ///
-				PSE_DM5Y=r(pse_DM5Y) ///		
-				PSE_DM4Y=r(pse_DM4Y) ///								
-				PSE_DM3Y=r(pse_DM3Y) ///				
-				PSE_DM2Y=r(pse_DM2Y) ///
-				PSE_DM1Y=r(pse_DM1Y), ///
-					reps(`reps') strata(`strata') cluster(`cluster') level(`level') `seed' ///
-					noheader notable: ///
-						pathwimpbs `yvar' `mvars' if `touse', ///
-							dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
-							d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-							sampwts(`sampwts') `censor'
-		}
+		bootstrap ///
+			ATE=r(ate) ///
+			PSE_DY=r(pse_DY) ///
+			PSE_DM5Y=r(pse_DM5Y) ///				
+			PSE_DM4Y=r(pse_DM4Y) ///				
+			PSE_DM3Y=r(pse_DM3Y) ///
+			PSE_DM2Y=r(pse_DM2Y) ///
+			PSE_DM1Y=r(pse_DM1Y), ///
+				`options' noheader notable: ///
+					pathwimpbs `yvar' `mvars' if `touse', ///
+						dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
+						d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
+						sampwts(`sampwts') censor(`censor')
 	}
 	
 	estat bootstrap, p noheader

@@ -18,7 +18,7 @@ program define pathwimpbs, rclass
 		[cxd] ///
 		[cxm] ///
 		[sampwts(varname numeric)] ///
-		[censor] ///
+		[censor(numlist min=2 max=2)] ///
 		[detail]
 		
 	qui {
@@ -26,7 +26,7 @@ program define pathwimpbs, rclass
 		count if `touse'
 		if r(N) == 0 error 2000
 		local N = r(N)
-		}
+	}
 			
 	gettoken yvar mvars : varlist
 	
@@ -36,34 +36,34 @@ program define pathwimpbs, rclass
 	foreach v of local mvars {
 		local mvar`i' `v'
 		local ++i
-		}
+	}
 	
 	if (`num_mvars' == 1) {
 	
 		mpathwimp `yvar' `mvars' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor' `detail'
+			sampwts(`sampwts') censor(`censor') `detail'
 	
 		return scalar nde=r(nde)
 		return scalar nie=r(nie)
 		return scalar ate=r(ate)
 	
-		}
+	}
 
 	if (`num_mvars' == 2) {
 	
 		mpathwimp `yvar' `mvar1' `mvar2' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor'
+			sampwts(`sampwts') censor(`censor')
 	
 		qui scalar mnde_M1M2=r(nde)
 
 		mpathwimp `yvar' `mvar1' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor' `detail'
+			sampwts(`sampwts') censor(`censor') `detail'
 		
 		qui scalar mnde_M1=r(nde)
 		
@@ -72,28 +72,28 @@ program define pathwimpbs, rclass
 		return scalar pse_DM1Y=r(nie)
 		return scalar ate=r(ate)
 		
-		}
+	}
 
 	if (`num_mvars' == 3) {
 	
 		mpathwimp `yvar' `mvar1' `mvar2' `mvar3' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor'
+			sampwts(`sampwts') censor(`censor')
 	
 		qui scalar mnde_M1M2M3=r(nde)
 
 		mpathwimp `yvar' `mvar1' `mvar2' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor'
+			sampwts(`sampwts') censor(`censor')
 		
 		qui scalar mnde_M1M2=r(nde)
 		
 		mpathwimp `yvar' `mvar1' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor' `detail'
+			sampwts(`sampwts') censor(`censor') `detail'
 		
 		qui scalar mnde_M1=r(nde)
 		
@@ -103,35 +103,35 @@ program define pathwimpbs, rclass
 		return scalar pse_DM1Y=r(nie)
 		return scalar ate=r(ate)
 		
-		}
+	}
 
 	if (`num_mvars' == 4) {
 	
 		mpathwimp `yvar' `mvar1' `mvar2' `mvar3' `mvar4' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor'
+			sampwts(`sampwts') censor(`censor')
 	
 		qui scalar mnde_M1M2M3M4=r(nde)
 
 		mpathwimp `yvar' `mvar1' `mvar2' `mvar3' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor'
+			sampwts(`sampwts') censor(`censor')
 		
 		qui scalar mnde_M1M2M3=r(nde)
 		
 		mpathwimp `yvar' `mvar1' `mvar2' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor'
+			sampwts(`sampwts') censor(`censor')
 		
 		qui scalar mnde_M1M2=r(nde)
 		
 		mpathwimp `yvar' `mvar1' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor' `detail'
+			sampwts(`sampwts') censor(`censor') `detail'
 		
 		qui scalar mnde_M1=r(nde)
 		
@@ -142,42 +142,42 @@ program define pathwimpbs, rclass
 		return scalar pse_DM1Y=r(nie)
 		return scalar ate=r(ate)
 		
-		}
+	}
 	
 	if (`num_mvars' == 5) {
 
 		mpathwimp `yvar' `mvar1' `mvar2' `mvar3' `mvar4' `mvar5' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor'
+			sampwts(`sampwts') censor(`censor')
 	
 		qui scalar mnde_M1M2M3M4M5=r(nde)
 
 		mpathwimp `yvar' `mvar1' `mvar2' `mvar3' `mvar4' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor'
+			sampwts(`sampwts') censor(`censor')
 	
 		qui scalar mnde_M1M2M3M4=r(nde)
 
 		mpathwimp `yvar' `mvar1' `mvar2' `mvar3' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor'
+			sampwts(`sampwts') censor(`censor')
 		
 		qui scalar mnde_M1M2M3=r(nde)
 		
 		mpathwimp `yvar' `mvar1' `mvar2' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor'
+			sampwts(`sampwts') censor(`censor')
 		
 		qui scalar mnde_M1M2=r(nde)
 		
 		mpathwimp `yvar' `mvar1' if `touse', ///
 			dvar(`dvar') cvars(`cvars') yreg(`yreg') ///
 			d(`d') dstar(`dstar') `cxd' `cxm' `nointeraction' ///
-			sampwts(`sampwts') `censor' `detail'
+			sampwts(`sampwts') censor(`censor') `detail'
 		
 		qui scalar mnde_M1=r(nde)
 		
@@ -189,6 +189,6 @@ program define pathwimpbs, rclass
 		return scalar pse_DM1Y=r(nie)
 		return scalar ate=r(ate)
 		
-		}
+	}
 
 end pathwimpbs

@@ -1,6 +1,6 @@
 d 'PATHWIMP': module to estimate path-specific effects using an imputation-based weighting estimator
 d
-d pathimp estimates path-specific effects using an imputation-based weighting estimator.
+d pathwimp estimates path-specific effects using an imputation-based weighting estimator.
 d      
 d Requires: Stata version 15
 d
